@@ -2,6 +2,8 @@ Scriptname DW_SL extends quest
 
 DW_CORE property CORE auto
 
+Quest ActorsQuest
+
 int Function GetGender(Actor akActor)
 	if CORE.Plugin_SL
 		Quest SexLabQuest = Quest.GetQuest("SexLabQuestFramework")
@@ -48,6 +50,7 @@ EndEvent
 Function Orgasm(Actor akActor, String _args)
 	if CORE.Plugin_SL
 		Quest SexLabQuest = Quest.GetQuest("SexLabQuestFramework")
+		
 		if (SexLabQuest)
 			SexLabFramework SexLab = SexLabQuest as SexLabFramework
 			;Sexlab.Log("DW SL Orgasm()")
@@ -106,10 +109,27 @@ Function Orgasm(Actor akActor, String _args)
 		endif
 	endif
 EndFunction
-	
+
+Function simulateDamagedVagina(Actor akActor)
+	if akActor != None 
+		if CORE.DW_VirginsList.HasForm(akActor)
+			CORE.DW_VirginsList.RemoveAddedForm(akActor)
+			debug.Trace(akActor.GetLeveledActorBase().GetName() +" vagina damaged")
+		endif
+		if akActor == Game.GetPlayer()
+			debug.Trace("PC vagina damaged")
+		endif
+	endif
+EndFunction
+
 Event OnSexLabStageChange(String _eventName, String _args, Float _argc, Form _sender)
 	if CORE.Plugin_SL
 		Quest SexLabQuest = Quest.GetQuest("SexLabQuestFramework")
+
+		If (CORE.Plugin_Appr2 && !ActorsQuest)
+			ActorsQuest = Game.GetFormFromFile(0x02902C, "Apropos2.esp") as Quest
+		EndIf
+		
 		if (SexLabQuest)
 			SexLabFramework SexLab = SexLabQuest as SexLabFramework
 			;Sexlab.Log("DW OnSexLabStageChange()")
@@ -128,6 +148,9 @@ Event OnSexLabStageChange(String _eventName, String _args, Float _argc, Form _se
 						If JsonUtil.FormListHas("/DW/NonVirginNPCList", "not_a_virgin", actors[0].GetLeveledActorBase()) == true
 							return
 						EndIf
+						if (ActorsQuest && DW_Appr2.GetVaginalWearState0to10(actors[0], ActorsQuest) > 6)
+							simulateDamagedVagina(actors[0])
+						endif
 						If CORE.DW_VirginsList.Find(actors[0]) == -1
 							;add non virgin npc to a list
 							;check if actor sl virgin
@@ -141,13 +164,12 @@ Event OnSexLabStageChange(String _eventName, String _args, Float _argc, Form _se
 									EndIf
 								EndIf
 							EndIf
-							
+
 							;player loosing virginity
 							If (actors[0] == Game.GetPlayer() && CORE.DW_bPlayerIsVirgin.GetValue() == 1)
 								debug.Notification("$DW_VIRGINITYLOST")
 								CORE.DW_bPlayerIsVirgin.SetValue(0)
 								CORE.DW_PlayerVirginityLoss.SetValue(CORE.DW_PlayerVirginityLoss.GetValue() + 1)
-
 								;player claims npc virginity
 							elseif actors[1] == Game.GetPlayer() 
 								debug.Notification("$DW_VIRGINSCLAIMED")

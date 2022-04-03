@@ -79,6 +79,7 @@ Bool Property Plugin_SOS = false auto
 ;Sexlab
 Bool Property Plugin_SL = false auto
 Bool Property Plugin_SLAR = false auto
+Bool Property Plugin_Appr2 = false auto
 ;FlowerGirls
 Bool Property Plugin_FGSE = false auto
 Bool Property Plugin_AR = false auto
@@ -90,6 +91,7 @@ Function Startup()
 	
 	Plugin_SL = (Game.GetModbyName("SexLab.esm") != 255)
 	Plugin_SLAR = (Game.GetModbyName("SexLabAroused.esm") != 255)
+	Plugin_Appr2 = (Game.GetModbyName("Apropos2.esp") != 255)
 
 	Plugin_FGSE = (Game.GetModbyName("FlowerGirls SE.esm") != 255)
 	Plugin_AR = (Game.GetModbyName("ArousedRedux.esm") != 255)
